@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>b.AI.silik</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      color: #0088FF;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      transition: background 0.5s ease;
+    }
+
+    h1 {
+      font-size: 3rem;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInTitle 1.5s ease-out forwards;
+    }
+
+    button {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background-color: transparent;
+      border: 2px solid #0088FF;
+      color: #0088FF;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInButton 2s ease-out forwards;
+      animation-delay: 1s;
+    }
+
+    button:hover {
+      background-color: #DBEAFF;
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    #camera-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      animation: fadeInBlock 0.8s ease-out forwards;
+    }
+	
+	#photo-container {
+	  display: none;
+	  flex-direction: column;
+	  align-items: center;
+	  opacity: 0;
+	  animation: fadeInBlock 0.8s ease-out forwards;
+	}
+
+    #video {
+      max-width: 90vw;
+      max-height: 50vh;
+      border: 2px solid #0ff;
+      border-radius: 12px;
+      margin-top: 1rem;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      transition: transform 0.4s ease;
+    }
+	
+	#photo {
+	  max-width: 90vw;
+	  max-height: 50vh;
+	  border: 2px solid #0ff;
+	  border-radius: 12px;
+	  margin-top: 1rem;
+	  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+	  transition: transform 0.4s ease;
+	}
+
+	#photo:hover {
+	  transform: scale(1.02);
+	}
+
+	.scanner-bar {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 100%;
+	  pointer-events: none;
+	  z-index: 2;
+	  overflow: hidden;
+	}
+
+    #video:hover, #photo:hover {
+      transform: scale(1.02);
+    }
+
+    .scanner-bar {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .scanner-line {
+      position: absolute;
+      background: rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 10px 4px #0ff;
+    }
+
+	#result-box {
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  padding: 1rem;
+	  border: 2px solid #0ff;
+	  border-radius: 12px;
+	  background-color: rgba(255, 255, 255, 0.9); /* blanc translucide */
+	  color: #000; /* noir lisible */
+	  font-size: 1.1rem;
+	  max-width: 90vw;
+	  white-space: pre-wrap;
+	  display: none;
+	  opacity: 0;
+	  animation: fadeInResult 1s ease-out forwards;
+	  z-index: 3;
+	  text-align: center;
+	  backdrop-filter: blur(4px);
+	}
+	
+	#photo-wrapper {
+	  position: relative;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	}
+	
+	#loading-text {
+	  font-size: 1.2rem;
+	  margin-top: 1rem;
+	  color: #0ff;
+	}
+
+	@keyframes dot-flash {
+	  0% { content: ""; }
+	  25% { content: "."; }
+	  50% { content: ".."; }
+	  75% { content: "..."; }
+	  100% { content: ""; }
+	}
+
+
+
+    @keyframes fadeInTitle {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInButton {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInBlock {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInResult {
+      to {
+        opacity: 1;
+      }
+    }
+
+	@keyframes scan-down {
+	  0% { top: 0%; }
+	  100% { top: 100%; }
+	}
+
+	@keyframes scan-up {
+	  0% { top: 100%; }
+	  100% { top: 0%; }
+	}
+
+	@keyframes scan-left {
+	  0% { left: 100%; }
+	  100% { left: 0%; }
+	}
+
+	@keyframes scan-right {
+	  0% { left: 0%; }
+	  100% { left: 100%; }
+	}
+  </style>
+</head>
+<body>
+  <h1>b.AI.silik</h1>
+  <button id="startBtn">Prendre une photo</button>
+
+	<div id="camera-container">
+	  <button id="snapBtn">Capturer</button>
+	  <video id="video" autoplay playsinline></video>
+	</div>
+
+
+	<div id="photo-container">
+	  <button id="analyzeBtn">Analyser</button>
+	  <div id="loading-text" style="display: none;">Chargement<span id="dots"></span></div>
+
+	  <div id="photo-wrapper" style="position: relative;">
+		<canvas id="photo"></canvas>
+		<div id="scanner" class="scanner-bar"></div>
+	  </div>
+	  
+	  <div id="result-box"></div>
+	</div>
+
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const snapBtn = document.getElementById('snapBtn');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const video = document.getElementById('video');
+    const photo = document.getElementById('photo');
+    const ctx = photo.getContext('2d');
+    const cameraContainer = document.getElementById('camera-container');
+    const photoContainer = document.getElementById('photo-container');
+    const scanner = document.getElementById('scanner');
+    const resultBox = document.getElementById('result-box');
+	
+	const params = new URLSearchParams(window.location.search);
+    var MessageResut = params.get('v1') || "Il y a 98.2% de chance que la carte choisie soit l'as de carreau.";
+
+    let stream;
+
+    // Fonction d’upload vers Cloudinary
+    function uploadToCloudinary(imageBlob) {
+      const url = 'https://api.cloudinary.com/v1_1/dh7dfxkse/upload'; // ← Remplace <TON_CLOUD_NAME>
+      const preset = 'FirstTest'; // ← Remplace <TON_UPLOAD_PRESET>
+
+      const formData = new FormData();
+      formData.append('file', imageBlob);
+      formData.append('upload_preset', preset);
+
+      return fetch(url, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Image uploadée :", data.secure_url);
+        // Tu peux ajouter ici un affichage ou une alerte avec l'URL :
+		/*
+        const link = document.createElement('a');
+        link.href = data.secure_url;
+        link.textContent = 'Voir l’image sauvegardée';
+        link.target = '_blank';
+        document.body.appendChild(link);
+		*/
+      })
+      .catch(err => {
+        console.error("Erreur Cloudinary :", err);
+      });
+    }
+
+startBtn.addEventListener('click', async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } }
+    });
+    video.srcObject = stream;
+    startBtn.style.display = 'none';
+    cameraContainer.style.display = 'flex';
+    cameraContainer.style.animation = 'fadeInBlock 0.8s ease-out forwards';
+  } catch (e) {
+    alert('Impossible d’accéder à la caméra.');
+    console.error("Erreur d'accès à la caméra :", e);
+  }
+});
+
+    snapBtn.addEventListener('click', () => {
+      photo.width = video.videoWidth;
+      photo.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, photo.width, photo.height);
+      stream.getTracks().forEach(track => track.stop());
+      cameraContainer.style.display = 'none';
+      photoContainer.style.display = 'flex';
+      photoContainer.style.animation = 'fadeInBlock 0.8s ease-out forwards';
+
+      //Upload vers Cloudinary
+      photo.toBlob(blob => {
+        uploadToCloudinary(blob);
+      }, 'image/jpeg');
+    });
+
+    analyzeBtn.addEventListener('click', () => {
+      analyzeBtn.style.display = 'none';
+      const loadingText = document.getElementById('loading-text');
+      const dots = document.getElementById('dots');
+      loadingText.style.display = 'block';
+
+      let dotCount = 0;
+      const dotInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4;
+        dots.textContent = '.'.repeat(dotCount);
+      }, 500);
+
+      scanner.innerHTML = '';
+      resultBox.style.display = 'none';
+      resultBox.textContent = '';
+
+      const directions = [
+        { axis: 'vertical', direction: 'down' },
+        { axis: 'horizontal', direction: 'left' },
+        { axis: 'vertical', direction: 'up' },
+        { axis: 'horizontal', direction: 'right' }
+      ];
+
+      directions.forEach((dir, i) => {
+        setTimeout(() => {
+          const line = document.createElement('div');
+          line.classList.add('scanner-line');
+
+          if (dir.axis === 'vertical') {
+            line.style.width = '100%';
+            line.style.height = '4px';
+            line.style.top = dir.direction === 'up' ? '100%' : '0%';
+            line.style.animation = `scan-${dir.direction} 1s linear forwards`;
+          } else {
+            line.style.height = '100%';
+            line.style.width = '4px';
+            line.style.left = dir.direction === 'right' ? '0%' : '100%';
+            line.style.animation = `scan-${dir.direction} 1s linear forwards`;
+          }
+
+          scanner.appendChild(line);
+          setTimeout(() => {
+            scanner.removeChild(line);
+          }, 1000);
+        }, i * 1250);
+      });
+
+      setTimeout(() => {
+        clearInterval(dotInterval);
+        // loadingText.style.display = 'none';
+		loadingText.style.color = '#fff';
+        displayResult(MessageResut); // <---- Message à personaliser
+      }, 5000);
+    });
+
+    function displayResult(text) {
+      const box = resultBox;
+      box.style.display = 'block';
+      box.style.opacity = 0;
+      let i = 0;
+
+      function typeChar() {
+        if (i < text.length) {
+          box.textContent += text[i];
+          i++;
+          const delay = Math.random() * 100 + 20;
+          setTimeout(typeChar, delay);
+        }
+      }
+
+      box.style.animation = 'fadeInResult 1s ease-out forwards';
+      typeChar();
+    }
+  </script>
+</body>
+</html>
